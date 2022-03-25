@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,12 +16,9 @@ namespace Lab2_19.ViiwModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private int number1;
-        private int number2;
-        private int numberSum;
+        private string parseString;
+        private double numberResult;
 
-        private double radius;
-        private double lenCricle;
 
         void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
@@ -28,89 +26,128 @@ namespace Lab2_19.ViiwModel
         }
 
 
-        public int Number1
+        public string ParseString
         {
-            get => number1;
+            get => parseString;
             set
             {
-                number1 = value;
-                OnPropertyChanged();
-            }
-        }
-        public int Number2
-        {
-            get => number2;
-            set
-            {
-                number2 = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int NumberSum
-        {
-            get => numberSum;
-            set
-            {
-                numberSum = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public double Radius
-        {
-            get => radius;
-            set
-            {
-                radius = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public double LenCricle
-        {
-            get => lenCricle;
-            set
-            {
-                lenCricle = value;
+                parseString = value;
                 OnPropertyChanged();
             }
         }
 
 
-        public ICommand AddCommand { get; }
-        private void OnAddCommandExecute(object p)
+        public double NumberResult
         {
-            NumberSum = Ariph.Add(Number1, Number2);
+            get => numberResult;
+            set
+            {
+                numberResult = value;
+                OnPropertyChanged();
+            }
         }
 
-        private bool CanAddCommandExecute(object p)
+
+        public ICommand CalcCommand { get; }
+
+        public ICommand ButtonCommand { get; }
+        public ICommand ClearSymbolCommand { get; }
+        public ICommand ClearAllCommand { get; }
+        public ICommand KvadCommand { get; }
+
+        private void OnKvadCommandExecute(object p)
         {
-            if (number1 != 0 || number2 != 0)
+            NumberResult = Math.Pow(Convert.ToDouble(ParseString), 2);
+        }
+
+        private bool CanKvadCommandExecute(object p)
+        {
+            try
+            {
+                if (ParseString?.Length > 0)
+                {
+                    ParseString = ParseString.Replace(".", ",");
+                    Convert.ToDouble(ParseString);
+                   
+                }
                 return true;
-            else
+            }
+            catch
+            {
                 return false;
+            }
+
         }
 
-        public ICommand LenFromRadiusCommand { get; }
-
-        private void OnLenFromRadius(object p)
+        private void OnClearAllCommandExecute(object p)
         {
-            LenCricle = Ariph.LenFromRadius(Radius);
+
+            ParseString = "";
         }
 
-        private bool CanLenFromRadius(object p)
+        private bool CanClearAllCommandExecute(object p)
         {
-            if (radius != 0)
+            if (ParseString != "" && !(ParseString is null))
                 return true;
-            else
-                return false;
+            return false;
+        }
+
+
+
+        private void OnClearSymbolCommandExecute(object p)
+        {
+
+            ParseString = ParseString.Substring(0, ParseString.Length - 1);
+        }
+
+        private bool CanClearSymbolCommandExecute(object p)
+        {
+            if (ParseString != "" && !(ParseString is null))
+                return true;
+            return false;
+        }
+
+
+        private void OnButtonCommandExecute(object p)
+        {
+            ParseString += (string)p;
+        }
+
+        private bool CanButtonCommandExecute(object p)
+        {
+            return true;
+        }
+
+        private void OnCalcCommandExecute(object p)
+        {
+            NumberResult = ParseInputString(ParseString);
+        }
+
+        private double ParseInputString(string str)
+        {
+            DataTable dt = new DataTable();
+
+            return Convert.ToDouble(dt.Compute(str, ""));
+        }
+
+        private bool CanCalcCommandExecute(object p)
+        {
+            // Проверка на пустоту строки... Тут можно дописать парсер корректности строки.
+
+            if (ParseString != "" && !(ParseString is null))
+                return true;
+            return false;
         }
 
         public MainWindowViewModel()
         {
-            AddCommand = new RelayCommand(OnAddCommandExecute, CanAddCommandExecute);
-            LenFromRadiusCommand = new RelayCommand(OnLenFromRadius, CanLenFromRadius);
+            CalcCommand = new RelayCommand(OnCalcCommandExecute, CanCalcCommandExecute);
+            ButtonCommand = new RelayCommand(OnButtonCommandExecute, CanButtonCommandExecute);
+            ClearSymbolCommand = new RelayCommand(OnClearSymbolCommandExecute, CanClearSymbolCommandExecute);
+            ClearAllCommand = new RelayCommand(OnClearAllCommandExecute, CanClearAllCommandExecute);
+            KvadCommand = new RelayCommand(OnKvadCommandExecute, CanKvadCommandExecute);
+
+
         }
     }
 }
