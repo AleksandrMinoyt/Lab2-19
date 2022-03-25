@@ -127,7 +127,15 @@ namespace Lab2_19.ViiwModel
         {
             DataTable dt = new DataTable();
 
-            return Convert.ToDouble(dt.Compute(str, ""));
+            try 
+            {
+                return Convert.ToDouble(dt.Compute(str, ""));
+            }
+            catch
+            {
+                return 0;
+            }
+           
         }
 
         private bool CanCalcCommandExecute(object p)
